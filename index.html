@@ -4,17 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2 VIDEOS SHORTS</title>
-  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: linear-gradient(180deg, #ffe6f0 0%, #fff 100%);
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+    }
+    #overlay { display: none; }
+  </style>
 </head>
-<body>
-  <div id="videoContainer"></div>
-  <button id="noAdsBtn">🚫 No Ads</button>
+<body class="relative">
 
-  <div id="overlay">
-    <h2>Remove Ads for Only $0.99/month 💎</h2>
-    <p>Enjoy uninterrupted viewing experience.</p>
-    <button id="subscribeBtn">Subscribe</button>
-    <button id="closeOverlay">Close</button>
+  <!-- Video Container -->
+  <div id="videoContainer" class="w-full h-screen relative"></div>
+
+  <!-- Floating No Ads Button -->
+  <button id="noAdsBtn" class="fixed top-4 right-4 z-50 bg-pink-300 text-white px-4 py-2 rounded-full shadow-lg hover:bg-pink-500 transition duration-300">
+    🚫 No Ads
+  </button>
+
+  <!-- Overlay Modal -->
+  <div id="overlay" class="fixed inset-0 bg-pink-100 bg-opacity-90 flex justify-center items-center z-50">
+    <div class="bg-white rounded-2xl p-8 w-4/5 max-w-xs text-center shadow-2xl">
+      <h2 class="text-pink-500 font-bold text-lg mb-2">Remove Ads for Only $0.99/month 💎</h2>
+      <p class="text-gray-600 text-sm mb-5">Enjoy uninterrupted viewing experience.</p>
+      <button id="subscribeBtn" class="bg-pink-500 text-white rounded-full px-5 py-2 font-semibold mx-2 hover:bg-pink-600 transition duration-300">Subscribe</button>
+      <button id="closeOverlay" class="bg-gray-300 text-gray-800 rounded-full px-5 py-2 font-semibold mx-2 hover:bg-gray-400 transition duration-300">Close</button>
+    </div>
   </div>
 
   <script src="app.js"></script>
