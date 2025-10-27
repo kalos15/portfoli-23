@@ -1,6 +1,6 @@
-// -------------------------------
-// app.js — TikTok-style Video Player
-// -------------------------------
+// ---------------------------------------------------
+// app.js — FAST, RANDOM, TIKTOK-STYLE VIDEO PLAYER (UPDATED)
+// ---------------------------------------------------
 
 // Telegram WebApp integration (mock for browser)
 if (!window.Telegram) {
@@ -21,56 +21,87 @@ if (!window.Telegram) {
   };
 }
 
-let videos = [];
-let currentIndex = 0;
+// ❌ Removed: let videos = [];
+// ❌ Removed: let currentIndex = 0;
 let swipeCount = 0;
 let startY = 0;
+let isFetching = false; // Flag to prevent multiple fetches from fast swipes
 
 const videoContainer = document.getElementById("videoContainer");
 const overlay = document.getElementById("overlay");
 const closeOverlay = document.getElementById("closeOverlay");
 const noAdsBtn = document.getElementById("noAdsBtn");
 
-// Load video URLs from videos.txt
-async function loadVideos() {
-  try {
-    const res = await fetch("videos.txt");
-    const text = await res.text();
-    videos = text.split("\n")
-      .map(v => v.trim())
-      .filter(v => v.length > 0 && v.startsWith("http"));
+// --- CORE CHANGE: Fetch one random link from the server ---
+async function fetchRandomVideoLink() {
+  if (isFetching) return; // Ignore if a fetch is already in progress
+  isFetching = true;
+  
+  // Stop the currently playing video before fetching the next one
+  const currentVideo = videoContainer.querySelector("video");
+  if (currentVideo) currentVideo.pause(); 
 
-    shuffleArray(videos);
-    playNext();
+  try {
+    // 💡 This is the URL to your server script (e.g., PHP, Python, etc.)
+    // which MUST read videos.txt and return ONE random URL as plain text.
+    const API_ENDPOINT = "videos-random.php"; 
+    
+    // --- Mock Fallback for local testing without a server ---
+    const mockVideos = [
+      "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    ];
+    let url;
+    
+    if (typeof window !== 'undefined' && (window.location.protocol === 'file:' || window.location.hostname === '127.0.0.1')) {
+       // If running locally, use a mock random video
+       url = mockVideos[Math.floor(Math.random() * mockVideos.length)];
+       console.log("Using Mock Video (Local/No Server):", url);
+    } else {
+       // Real fetch request to your server endpoint
+       const res = await fetch(API_ENDPOINT);
+       if (!res.ok) {
+           throw new Error(`Server responded with status: ${res.status}`);
+       }
+       url = (await res.text()).trim(); 
+    }
+    // --- End Mock Fallback ---
+
+    if (url && url.length > 0) {
+      loadVideo(url);
+    } else {
+      console.error("❌ The server returned an empty or invalid video URL.");
+      // Load a placeholder on error
+      loadVideo(mockVideos[0]); 
+    }
+
   } catch (e) {
-    console.error("❌ Error loading videos:", e);
+    console.error("❌ Error fetching random video link:", e);
+    videoContainer.innerHTML = '<div class="ad-screen"><p>Connection error. Please try again. 🌐</p></div>';
+  } finally {
+    isFetching = false;
   }
 }
 
+// ❌ Removed: async function loadVideos() {}
+
 // Play next video or ad
 function playNext() {
-  if (!videos.length) return;
+  // 💡 Now, playNext triggers a new fetch/ad logic, NOT an index increment
   swipeCount++;
 
   // Show ad every 4 swipes
   if (swipeCount % 4 === 0) {
-    videoContainer.innerHTML = `
-      <div class="ad-screen">
-        <h2>Ad Coming Soon 🎬</h2>
-        <p>Your video will resume shortly...</p>
-      </div>
-    `;
-    setTimeout(() => loadVideo(currentIndex), 3000); // resume after ad
+    showAdScreen();
   } else {
-    loadVideo(currentIndex);
-    currentIndex = (currentIndex + 1) % videos.length;
+    // Request a new, random video link on every successful swipe
+    fetchRandomVideoLink();
   }
 }
 
-// Load video at index
-function loadVideo(index) {
-  const url = videos[index];
-  
+// Load video takes a single URL (string), not an index (number)
+function loadVideo(url) {
   // *** UPDATED: New artistic TikTok/Shorts design structure ***
   videoContainer.innerHTML = `
     <div class="video-slide">
@@ -78,7 +109,7 @@ function loadVideo(index) {
       
       <div class="info">
         <h2>@ARTISTIC_SHORTS_BOT</h2>
-        <p>This is a description of the beautiful short video! It's an aesthetic template for a Telegram Mini App. #artistic #shorts #design</p>
+        <p>This beautiful short video was picked randomly from 90,000+ videos! #artistic #random</p>
       </div>
 
       <div class="actions">
@@ -97,7 +128,20 @@ function loadVideo(index) {
   videoContainer.querySelector(".like-btn").addEventListener("click", function() {
     this.style.color = 'pink'; // Turn the heart pink when liked
     alert("Liked! ❤️"); 
-  }
+  });
+} // ⚠️ Fixed missing closing parenthesis here: }); was missing
+
+// Ad Screen
+function showAdScreen() {
+  videoContainer.innerHTML = `
+    <div class="ad-screen">
+      <p class="mb-4">Commercial Break! 🤩</p>
+      <p class="mt-4 text-sm opacity-70">Resuming in 3 seconds...</p>
+    </div>
+  `;
+  setTimeout(fetchRandomVideoLink, 3000); // resume after ad by fetching a new random link
+}
+
 
 // Swipe detection
 document.addEventListener("touchstart", e => { startY = e.touches[0].clientY; });
@@ -107,20 +151,17 @@ document.addEventListener("touchend", e => {
 });
 document.addEventListener("wheel", e => { if (e.deltaY > 0) playNext(); });
 
-// Shuffle videos
-function shuffleArray(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
+// ❌ Removed: function shuffleArray(arr) {} (No array to shuffle anymore)
+
 
 // Overlay / No Ads
-noAdsBtn.onclick = () => overlay.classList.remove("hidden");
-closeOverlay.onclick = () => overlay.classList.add("hidden");
+noAdsBtn.onclick = () => overlay.style.display = "flex"; // Changed classList to style.display for simplicity
+closeOverlay.onclick = () => overlay.style.display = "none"; // Changed classList to style.display for simplicity
 
 // Start app
-loadVideos();
+// ❌ Removed: loadVideos();
+// 💡 Correct way to start: Fetch the first random link
+fetchRandomVideoLink(); 
 
 // Telegram WebApp ready
 window.Telegram.WebApp.ready();
