@@ -4,14 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ARTISTIC SHORTS PLAYER</title>
-  <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Use Inter font for better readability on interfaces -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   
   <style>
     /* ------------------------------------- */
-    /* Merged and Refined CSS (TikTok/Shorts Style) */
+    /* ARTISTIC TIKTOK-STYLE CSS */
     /* ------------------------------------- */
     
     * { 
@@ -23,49 +21,32 @@
 
     body, html {
       height: 100%;
-      background-color: black; /* Full screen black background */
+      background-color: black; /* The required full-screen black background */
       overflow: hidden;
+      position: fixed; /* Ensures full viewport coverage on mobile */
+      width: 100vw;
     }
 
-    /* App Container */
+    /* App Container for full-screen video */
     #app {
       width: 100%;
       height: 100%;
       position: relative;
-      overflow: hidden;
     }
 
-    /* Video Slide Container (Injected by JS) */
-    .video-slide {
-      width: 100%;
-      height: 100vh;
-      position: relative;
-      background-color: black; /* Fallback */
-    }
-    
-    .video-slide video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover; /* Ensures video covers the whole screen */
-    }
+    /* Video Slide and Video Elements */
+    .video-slide { width: 100%; height: 100%; position: relative; }
+    .video-slide video { width: 100%; height: 100%; object-fit: cover; }
 
-    /* Info Overlay (Left Bottom) */
+    /* Info Overlay (Bottom-Left) */
     .info {
-      /* Uses absolute positioning and a drop shadow for legibility */
       position: absolute; bottom: 6rem; left: 1.25rem; 
       color: white;
-      filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.5));
+      text-shadow: 0 4px 5px rgba(0, 0, 0, 0.7); /* Strong shadow for legibility */
       z-index: 5;
     }
-    .info h2 {
-      font-size: 1.125rem; /* text-lg */
-      font-weight: 700;
-      margin-bottom: 0.1rem;
-    }
-    .info p {
-      font-size: 0.875rem; /* text-sm */
-      opacity: 0.95;
-    }
+    .info h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.1rem; }
+    .info p { font-size: 0.875rem; opacity: 0.95; }
 
     /* Actions Buttons Column (Right Bottom) */
     .actions {
@@ -76,11 +57,10 @@
     
     /* Style for ALL action buttons */
     .actions button {
-      background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
-      border-radius: 9999px; /* rounded-full */
+      background-color: rgba(0, 0, 0, 0.3); /* Dark semi-transparent background */
+      border-radius: 9999px; 
       padding: 1rem;
-      font-size: 1.5rem; /* text-2xl */
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      font-size: 1.5rem; 
       transition: background-color 0.3s, transform 0.1s;
       color: white; 
       border: none;
@@ -89,10 +69,8 @@
       cursor: pointer;
     }
     
-    .actions button:active {
-      transform: scale(0.9);
-    }
-
+    .actions button:active { transform: scale(0.9); }
+    
     /* Ad Screen/Error Screen */
     .ad-screen {
       width: 100%; height: 100%;
@@ -106,9 +84,9 @@
 
     /* Overlay Modal (Subscription Screen) */
     #overlay {
-      display: none; /* Hidden by default, shown by JS */
+      display: none; 
       backdrop-filter: blur(5px);
-      background-color: rgba(0, 0, 0, 0.7); /* Darker backdrop */
+      background-color: rgba(0, 0, 0, 0.8); /* Very dark backdrop */
     }
     .modal-content {
       /* Tailwind classes used inside modal */
@@ -127,9 +105,7 @@
       border: none;
       cursor: pointer;
     }
-    #buyProBtn {
-      background-color: #3b82f6; /* blue-500 for PRO action */
-    }
+    #buyProBtn { background-color: #3b82f6; }
 
   </style>
 </head>
@@ -137,6 +113,24 @@
 
   <div id="app" class="w-full h-screen relative">
     
+    <div id="videoContainer" class="w-full h-full relative"></div>
+    
+  </div>
+
+
+  <div id="overlay" class="fixed inset-0 flex justify-center items-center z-50">
+    <div class="modal-content">
+      <h2 class="text-pink-500 font-bold text-xl mb-2">Go PRO! 💎</h2>
+      <p class="text-gray-600 mb-4">Remove all ads for only $0.99/month and enjoy unlimited, artistic shorts!</p>
+      <button class="close-btn" id="buyProBtn">Get PRO Now</button>
+      <button class="close-btn bg-gray-400 hover:bg-gray-500" id="closeOverlay">I'll Wait</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+
+</body>
+</html>
     <!-- This container is where the video and its overlays will be injected by app.js -->
     <div id="videoContainer" class="w-full h-full relative">
       <!-- Initial content is loaded here via fetchRandomVideoLink() in app.js -->
