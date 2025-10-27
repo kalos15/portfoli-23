@@ -24,12 +24,13 @@ if (!window.Telegram) {
 let swipeCount = 0;
 let startY = 0;
 let isFetching = false; 
+const API_ENDPOINT = "videos-random.php"; // <--- Only reliance on the server file
 
 const videoContainer = document.getElementById("videoContainer");
 const overlay = document.getElementById("overlay");
 const closeOverlay = document.getElementById("closeOverlay");
 
-// --- CORE FIX: Fetch one random link from the server ---
+// --- CORE FUNCTION: Fetch one random link from the server ---
 async function fetchRandomVideoLink() {
   if (isFetching) return; 
   isFetching = true;
@@ -38,44 +39,30 @@ async function fetchRandomVideoLink() {
   if (currentVideo) currentVideo.pause(); 
 
   try {
-    // 💡 This calls your server script: videos-random.php
-    const API_ENDPOINT = "videos-random.php"; 
+    // 💡 This now ALWAYS calls your server script, which reads videos.txt and returns one random line.
+    const res = await fetch(API_ENDPOINT);
     
-    // --- Mock Fallback (Use real URLs for production) ---
-    const mockVideos = [
-      // These are publicly available, standard MP4 links for reliable testing
-      "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-      "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    ];
-    let url;
-    
-    // Check if we are running in an environment that needs the mock data
-    if (typeof window !== 'undefined' && (window.location.protocol === 'file:' || window.location.hostname === '127.0.0.1')) {
-       url = mockVideos[Math.floor(Math.random() * mockVideos.length)];
-       console.log("Using Mock Video (Local/No Server):", url);
-    } else {
-       // Real fetch request to your server endpoint
-       const res = await fetch(API_ENDPOINT);
-       if (!res.ok) {
-           throw new Error(`Server responded with status: ${res.status}`);
-       }
-       url = (await res.text()).trim(); 
+    if (!res.ok) {
+        throw new Error(`Server responded with status: ${res.status}. Check if ${API_ENDPOINT} is accessible.`);
     }
-    // --- End Mock Fallback ---
+    
+    const url = (await res.text()).trim(); 
 
     if (url && url.length > 0) {
       loadVideo(url);
     } else {
-      console.error("❌ The server returned an empty or invalid video URL. Falling back to mock.");
-      loadVideo(mockVideos[0]); 
+      throw new Error("The server returned an empty or invalid video URL.");
     }
 
   } catch (e) {
-    console.error("❌ Error fetching random video link or URL is broken:", e);
-    // If there is an error, show the error screen and wait for 3 seconds before trying again.
-    videoContainer.innerHTML = '<div class="ad-screen"><p>Connection error or video failed to load. 🌐 Retrying...</p></div>';
-    setTimeout(fetchRandomVideoLink, 3000);
+    console.error("❌ Error fetching video link. Check PHP script and videos.txt:", e);
+    // Show a user-friendly error screen instead of a broken video
+    videoContainer.innerHTML = `
+      <div class="ad-screen">
+        <p class="mb-4">💔 Video Error 💔</p>
+        <p class="mt-4 text-sm opacity-70">Cannot load videos. Please ensure your <strong>videos.txt</strong> file and <strong>videos-random.php</strong> script are uploaded and accessible.</p>
+      </div>
+    `;
   } finally {
     isFetching = false;
   }
@@ -95,7 +82,7 @@ function playNext() {
 
 // Load video takes a single URL (string)
 function loadVideo(url) {
-  // *** FIX: Added muted, playsinline, and loop to the video tag ***
+  // IMPORTANT: Added muted, playsinline, and loop for guaranteed mobile autoplay
   videoContainer.innerHTML = `
     <div class="video-slide">
       <video src="${url}" autoplay muted playsinline loop></video>
@@ -121,17 +108,15 @@ function loadVideo(url) {
   
   // Attempt to play and catch any Autoplay promise errors
   video.play().catch(error => {
-    // This error is common on mobile when the user hasn't interacted yet.
-    // Since it's already muted, the user might need to tap the screen once.
-    console.log("Autoplay error, video started on interaction:", error);
-    // Optionally, you could show a play icon here if you want manual control.
+    // This is expected if the browser blocks autoplay before user interaction
+    console.log("Autoplay blocked, waiting for user interaction.", error);
   });
   
   video.addEventListener("ended", playNext);
 
-  // Add event listeners
+  // Add event listeners for the new elements
   videoContainer.querySelector(".like-btn").addEventListener("click", function() {
-    this.style.color = 'pink'; 
+    this.style.color = '#ec4899'; // pink-500
     alert("Liked! ❤️"); 
   });
   
@@ -143,12 +128,14 @@ function loadVideo(url) {
 
 // Ad Screen
 function showAdScreen() {
+  // IMPORTANT: Your ad platform integration (Adsterra, etc.) goes here
   videoContainer.innerHTML = `
     <div class="ad-screen">
       <p class="mb-4">Commercial Break! 🤩</p>
-      <p class="mt-4 text-sm opacity-70">Resuming in 3 seconds... (Your ad content goes here)</p>
+      <p class="mt-4 text-sm opacity-70">Your ad content goes here (e.g., from Adsterra)</p>
     </div>
   `;
+  // After 3 seconds, fetch the next video (which is random)
   setTimeout(fetchRandomVideoLink, 3000); 
 }
 
@@ -164,6 +151,7 @@ document.addEventListener("wheel", e => { if (e.deltaY > 0) playNext(); });
 // Overlay / Close Modal
 closeOverlay.onclick = () => overlay.style.display = "none";
 
-// Start app
+// --- START APP ---
+// This is the core fix for the "black screen" issue: it starts the process immediately.
 Telegram.WebApp.ready();
 fetchRandomVideoLink();
