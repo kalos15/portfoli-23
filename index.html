@@ -5,38 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2 VIDEOS SHORTS</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles (2).css"> 
   <style>
+    /* Remove inline styles, rely on styles (2).css for the full-screen black template */
     body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: linear-gradient(180deg, #ffe6f0 0%, #fff 100%);
-      overflow: hidden;
-      font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        /* The full-screen fix and black background are now in styles (2).css */
     }
-    #overlay { display: none; }
+    /* Set up the font for the like icon/other actions */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
   </style>
 </head>
-<body class="relative">
+<body>
 
-  <!-- Video Container -->
-  <div id="videoContainer" class="w-full h-screen relative"></div>
+  <div id="app" class="w-full h-screen relative">
+    
+    <div id="videoContainer" class="w-full h-full relative">
+      </div>
 
-  <!-- Floating No Ads Button -->
-  <button id="noAdsBtn" class="fixed top-4 right-4 z-50 bg-pink-300 text-white px-4 py-2 rounded-full shadow-lg hover:bg-pink-500 transition duration-300">
-    🚫 No Ads
-  </button>
+    <button id="noAdsBtn">
+      🚫 Remove Ads
+    </button>
+  
+  </div>
 
-  <!-- Overlay Modal -->
+
   <div id="overlay" class="fixed inset-0 bg-pink-100 bg-opacity-90 flex justify-center items-center z-50">
-    <div class="bg-white rounded-2xl p-8 w-4/5 max-w-xs text-center shadow-2xl">
+    <div class="modal-content">
       <h2 class="text-pink-500 font-bold text-lg mb-2">Remove Ads for Only $0.99/month 💎</h2>
-      <p class="text-gray-600 text-sm mb-5">Enjoy uninterrupted viewing experience.</p>
-      <button id="subscribeBtn" class="bg-pink-500 text-white rounded-full px-5 py-2 font-semibold mx-2 hover:bg-pink-600 transition duration-300">Subscribe</button>
-      <button id="closeOverlay" class="bg-gray-300 text-gray-800 rounded-full px-5 py-2 font-semibold mx-2 hover:bg-gray-400 transition duration-300">Close</button>
+      <p class="text-gray-600 mb-4">Enjoy an uninterrupted, artistic viewing experience!</p>
+      <button class="close-btn" id="closeOverlay">I'll Wait</button>
+      <button class="close-btn" id="buyProBtn">Get PRO Now</button>
     </div>
   </div>
 
   <script src="app.js"></script>
+
 </body>
 </html>
