@@ -1,100 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2 VIDEOS SHORTS</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Test</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #ffe6f0; /* light pink background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>2 VIDEOS SHORTS</h1>
-      <button id="noAdsBtn">🚫 No Ads</button>
-    </header>
-
-    <div id="videoContainer"></div>
-
-    <div id="overlay" class="hidden">
-      <div class="overlay-content">
-        <h2>Remove Ads for Only $0.99/month 💎</h2>
-        <p>Enjoy uninterrupted viewing experience.</p>
-        <button id="subscribeBtn">Subscribe</button>
-        <button id="closeOverlay">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const videoContainer = document.getElementById("videoContainer");
-    const overlay = document.getElementById("overlay");
-    const closeOverlay = document.getElementById("closeOverlay");
-    const noAdsBtn = document.getElementById("noAdsBtn");
-    const videos = [];
-
-    // Load video links from videos.txt
-    fetch("videos.txt")
-      .then(r => r.text())
-      .then(text => {
-        text.split("\n").forEach(line => {
-          const url = line.trim();
-          if (url) videos.push(url);
-        });
-        loadVideo(0);
-      });
-
-    let currentIndex = 0;
-    let adCounter = 0;
-
-    function loadVideo(index) {
-      if (index >= videos.length) index = 0;
-      videoContainer.innerHTML = `
-        <div class="video-slide">
-          <video src="${videos[index]}" autoplay muted playsinline></video>
-          <div class="info">
-            <h2>2 VIDEOS SHORTS</h2>
-            <p>xxx</p>
-          </div>
-          <div class="actions">
-            <button class="like-btn">❤️</button>
-          </div>
-        </div>
-      `;
-      const video = videoContainer.querySelector("video");
-      video.play();
-      video.addEventListener("ended", () => nextVideo());
-    }
-
-    function nextVideo() {
-      currentIndex++;
-      adCounter++;
-      if (currentIndex >= videos.length) currentIndex = 0;
-
-      // Every 4 videos -> Ad placeholder
-      if (adCounter % 4 === 0) {
-        videoContainer.innerHTML = `
-          <div class="ad-screen">
-            <h2>Ad Coming Soon 🎬</h2>
-            <p>Your video will resume shortly...</p>
-          </div>
-        `;
-        setTimeout(() => loadVideo(currentIndex), 3000);
-      } else {
-        loadVideo(currentIndex);
-      }
-    }
-
-    document.addEventListener("wheel", e => {
-      if (e.deltaY > 0) nextVideo();
-    });
-    document.addEventListener("touchstart", e => startY = e.touches[0].clientY);
-    document.addEventListener("touchend", e => {
-      const endY = e.changedTouches[0].clientY;
-      if (startY - endY > 50) nextVideo();
-    });
-
-    noAdsBtn.onclick = () => overlay.classList.remove("hidden");
-    closeOverlay.onclick = () => overlay.classList.add("hidden");
-  </script>
+  <video autoplay muted controls>
+    <source src="https://www.xxxfollow.com/media/fans/post_public/4052/40528194/1115074_sd.mp4" type="video/mp4">
+    Your browser does not support HTML5 video.
+  </video>
 </body>
 </html>
+
