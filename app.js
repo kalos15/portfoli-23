@@ -1,5 +1,5 @@
 // ---------------------------------------------------
-// app.js — FAST, RANDOM, TIKTOK-STYLE VIDEO PLAYER (FIXED)
+// app.js — FAST, RANDOM, TIKTOK-STYLE VIDEO PLAYER (FINAL FIX)
 // ---------------------------------------------------
 
 // Telegram WebApp integration (mock for browser)
@@ -23,12 +23,11 @@ if (!window.Telegram) {
 
 let swipeCount = 0;
 let startY = 0;
-let isFetching = false; // Flag to prevent multiple fetches from fast swipes
+let isFetching = false; 
 
 const videoContainer = document.getElementById("videoContainer");
 const overlay = document.getElementById("overlay");
 const closeOverlay = document.getElementById("closeOverlay");
-// const noAdsBtn = document.getElementById("noAdsBtn"); // Removed the constant for the floating button
 
 // --- CORE FIX: Fetch one random link from the server ---
 async function fetchRandomVideoLink() {
@@ -42,7 +41,7 @@ async function fetchRandomVideoLink() {
     // 💡 This calls your server script: videos-random.php
     const API_ENDPOINT = "videos-random.php"; 
     
-    // --- Mock Fallback for local testing (remove after deploying PHP) ---
+    // --- Mock Fallback (Use real URLs for production) ---
     const mockVideos = [
       "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
       "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
@@ -64,7 +63,7 @@ async function fetchRandomVideoLink() {
     if (url && url.length > 0) {
       loadVideo(url);
     } else {
-      console.error("❌ The server returned an empty or invalid video URL.");
+      console.error("❌ The server returned an empty or invalid video URL. Falling back to mock.");
       loadVideo(mockVideos[0]); 
     }
 
@@ -80,7 +79,7 @@ async function fetchRandomVideoLink() {
 function playNext() {
   swipeCount++;
 
-  // 💡 NEW AD LOGIC: Show ad every 2 swipes
+  // 💡 AD LOGIC: Show ad every 2 swipes
   if (swipeCount % 2 === 0) {
     showAdScreen();
   } else {
@@ -90,21 +89,25 @@ function playNext() {
 
 // Load video takes a single URL (string)
 function loadVideo(url) {
-  // *** INJECTING NEW ACTIONS COLUMN ***
+  // *** INJECTING NEW BLACK BAR STRUCTURE ***
   videoContainer.innerHTML = `
     <div class="video-slide">
       <video src="${url}" autoplay muted playsinline loop></video>
       
+      <!-- The new info container for the black bar effect -->
       <div class="info">
-        <h2>@ARTISTIC_SHORTS_BOT</h2>
-        <p>This beautiful short video was picked very randomly! #artistic #professional</p>
+        <div class="info-content">
+            <h2>@ARTISTIC_SHORTS_BOT</h2>
+            <p>This beautiful short video was picked very randomly! #artistic #professional</p>
+        </div>
       </div>
 
       <div class="actions">
         <button class="user-btn">🧑‍💻</button>
         <button class="like-btn">❤️</button>
         <button class="share-btn">🔗</button>
-        <button class="noAds-btn" id="openAdsModal">💎</button> </div>
+        <button class="noAds-btn" id="openAdsModal">💎</button>
+      </div>
     </div>
   `;
 
@@ -115,11 +118,10 @@ function loadVideo(url) {
   // Add event listeners
   videoContainer.querySelector(".like-btn").addEventListener("click", function() {
     this.style.color = 'pink'; 
-    // You can send a request to your bot here to record the like.
     alert("Liked! ❤️"); 
   });
   
-  // 💡 NEW: Handler for the inline "Hide Ads" button
+  // Handler for the inline "Hide Ads" button
   document.getElementById("openAdsModal").onclick = () => {
     overlay.style.display = "flex";
   };
@@ -130,10 +132,11 @@ function showAdScreen() {
   videoContainer.innerHTML = `
     <div class="ad-screen">
       <p class="mb-4">Commercial Break! 🤩</p>
-      <p class="mt-4 text-sm opacity-70">Resuming in 3 seconds... (Ad content goes here)</p>
+      <p class="mt-4 text-sm opacity-70">Resuming in 3 seconds... (Your ad content goes here)</p>
     </div>
   `;
-  setTimeout(fetchRandomVideoLink, 3000); // resume after ad by fetching a new random link
+  // After 3 seconds, fetch the next video (which is random)
+  setTimeout(fetchRandomVideoLink, 3000); 
 }
 
 
@@ -148,6 +151,7 @@ document.addEventListener("wheel", e => { if (e.deltaY > 0) playNext(); });
 // Overlay / Close Modal
 closeOverlay.onclick = () => overlay.style.display = "none";
 
-// Start app (Fixes the black screen issue)
+// Start app (This is the fix: it loads the first video immediately)
 Telegram.WebApp.ready();
 fetchRandomVideoLink();
+
