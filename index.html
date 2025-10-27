@@ -3,44 +3,164 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2 VIDEOS SHORTS</title>
+  <title>ARTISTIC SHORTS PLAYER</title>
+  <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="styles (2).css"> 
+  <!-- Use Inter font for better readability on interfaces -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  
   <style>
-    /* Remove inline styles, rely on styles (2).css for the full-screen black template */
-    body, html {
-        margin: 0;
-        padding: 0;
-        /* The full-screen fix and black background are now in styles (2).css */
+    /* ------------------------------------- */
+    /* Merged and Refined CSS (TikTok/Shorts Style) */
+    /* ------------------------------------- */
+    
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      font-family: 'Inter', sans-serif;
     }
-    /* Set up the font for the like icon/other actions */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+    body, html {
+      height: 100%;
+      background-color: black; /* Full screen black background */
+      overflow: hidden;
+    }
+
+    /* App Container */
+    #app {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Video Slide Container (Injected by JS) */
+    .video-slide {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      background-color: black; /* Fallback */
+    }
+    
+    .video-slide video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* Ensures video covers the whole screen */
+    }
+
+    /* Info Overlay (Left Bottom) */
+    .info {
+      /* Uses absolute positioning and a drop shadow for legibility */
+      position: absolute; bottom: 6rem; left: 1.25rem; 
+      color: white;
+      filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.5));
+      z-index: 5;
+    }
+    .info h2 {
+      font-size: 1.125rem; /* text-lg */
+      font-weight: 700;
+      margin-bottom: 0.1rem;
+    }
+    .info p {
+      font-size: 0.875rem; /* text-sm */
+      opacity: 0.95;
+    }
+
+    /* Actions Buttons Column (Right Bottom) */
+    .actions {
+      position: absolute; bottom: 2.5rem; right: 1.25rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      z-index: 10;
+    }
+    
+    /* Style for ALL action buttons */
+    .actions button {
+      background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+      border-radius: 9999px; /* rounded-full */
+      padding: 1rem;
+      font-size: 1.5rem; /* text-2xl */
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s, transform 0.1s;
+      color: white; 
+      border: none;
+      width: 3.5rem; height: 3.5rem;
+      display: flex; justify-content: center; align-items: center;
+      cursor: pointer;
+    }
+    
+    .actions button:active {
+      transform: scale(0.9);
+    }
+
+    /* Ad Screen/Error Screen */
+    .ad-screen {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; justify-content: center; 
+      align-items: center;
+      color: #f472b6; /* pink-400 */
+      font-size: 1.5rem; 
+      background-color: #1f2937; /* Dark background for contrast */
+      text-align: center;
+    }
+
+    /* Overlay Modal (Subscription Screen) */
+    #overlay {
+      display: none; /* Hidden by default, shown by JS */
+      backdrop-filter: blur(5px);
+      background-color: rgba(0, 0, 0, 0.7); /* Darker backdrop */
+    }
+    .modal-content {
+      /* Tailwind classes used inside modal */
+      @apply bg-white rounded-2xl p-8 w-4/5 max-w-xs text-center shadow-2xl;
+    }
+    .close-btn {
+      /* Tailwind-like utility styles for buttons */
+      background-color: #ec4899; /* pink-500 */
+      color: white;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+      transition: background-color 0.3s;
+      width: 100%;
+      border: none;
+      cursor: pointer;
+    }
+    #buyProBtn {
+      background-color: #3b82f6; /* blue-500 for PRO action */
+    }
+
   </style>
 </head>
-<body>
+<body class="relative">
 
   <div id="app" class="w-full h-screen relative">
     
+    <!-- This container is where the video and its overlays will be injected by app.js -->
     <div id="videoContainer" class="w-full h-full relative">
-      </div>
+      <!-- Initial content is loaded here via fetchRandomVideoLink() in app.js -->
+    </div>
+    
+    <!-- Note: The "Remove Ads" button is now dynamically added 
+         to the .actions column by app.js for a better design. -->
 
-    <button id="noAdsBtn">
-      🚫 Remove Ads
-    </button>
-  
   </div>
 
 
-  <div id="overlay" class="fixed inset-0 bg-pink-100 bg-opacity-90 flex justify-center items-center z-50">
+  <!-- Overlay Modal for Subscription (Hidden by default) -->
+  <div id="overlay" class="fixed inset-0 flex justify-center items-center z-50">
     <div class="modal-content">
-      <h2 class="text-pink-500 font-bold text-lg mb-2">Remove Ads for Only $0.99/month 💎</h2>
-      <p class="text-gray-600 mb-4">Enjoy an uninterrupted, artistic viewing experience!</p>
-      <button class="close-btn" id="closeOverlay">I'll Wait</button>
+      <h2 class="text-pink-500 font-bold text-xl mb-2">Go PRO! 💎</h2>
+      <p class="text-gray-600 mb-4">Remove all ads for only $0.99/month and enjoy unlimited, artistic shorts!</p>
       <button class="close-btn" id="buyProBtn">Get PRO Now</button>
+      <button class="close-btn bg-gray-400 hover:bg-gray-500" id="closeOverlay">I'll Wait</button>
     </div>
   </div>
 
+  <!-- The app.js script now loads the first random video instantly -->
   <script src="app.js"></script>
 
 </body>
 </html>
+
