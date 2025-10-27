@@ -30,6 +30,16 @@ const videoContainer = document.getElementById("videoContainer");
 const overlay = document.getElementById("overlay");
 const closeOverlay = document.getElementById("closeOverlay");
 
+// --- UTILITY: Show Loading Screen ---
+function showLoadingScreen() {
+    videoContainer.innerHTML = `
+      <div class="ad-screen">
+        <p class="mb-4">Loading short... ⏳</p>
+        <p class="mt-4 text-sm opacity-70">Fetching random link from server. Please wait.</p>
+      </div>
+    `;
+}
+
 // --- CORE FUNCTION: Fetch one random link from the server ---
 async function fetchRandomVideoLink() {
   if (isFetching) return; 
@@ -37,6 +47,9 @@ async function fetchRandomVideoLink() {
   
   const currentVideo = videoContainer.querySelector("video");
   if (currentVideo) currentVideo.pause(); 
+  
+  // Display the loading screen immediately
+  showLoadingScreen();
 
   try {
     // 💡 This now ALWAYS calls your server script, which reads videos.txt and returns one random line.
@@ -152,6 +165,6 @@ document.addEventListener("wheel", e => { if (e.deltaY > 0) playNext(); });
 closeOverlay.onclick = () => overlay.style.display = "none";
 
 // --- START APP ---
-// This is the core fix for the "black screen" issue: it starts the process immediately.
+// Display loading screen, then fetch the first video
 Telegram.WebApp.ready();
 fetchRandomVideoLink();
