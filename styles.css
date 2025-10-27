@@ -7,9 +7,12 @@
 }
 
 body, html {
-  height: 100%;
-  background: linear-gradient(180deg, #ffe6f0 0%, #fff 100%);
+  /* FIX: Ensure full-screen, no white bar, and a black background for the shorts-style template */
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000; /* TikTok/Shorts is always a black background */
   overflow: hidden;
+  position: fixed; /* A robust way to ensure full viewport coverage on all devices */
 }
 
 /* App Container */
@@ -20,69 +23,80 @@ body, html {
   overflow: hidden;
 }
 
-/* Header */
-header {
-  @apply absolute top-2 left-0 w-full flex justify-between items-center px-5 z-10;
-}
-header h1 {
-  @apply text-pink-500 font-bold text-lg;
-}
-header button {
-  @apply bg-pink-300 text-white px-4 py-2 rounded-full font-semibold shadow-lg hover:bg-pink-500 transition duration-300;
-}
+/* Header - Removed the old header as it clashes with the full-screen video style */
 
 /* Video Slide */
 .video-slide {
   width: 100%;
-  height: 100vh;
+  height: 100%; /* Changed from 100vh to 100% of the parent (which is 100vh) */
   position: relative;
 }
 .video-slide video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block; /* Helps prevent minor layout shifts */
 }
 
-/* Info Overlay */
+/* Info Overlay (Bottom-Left Description Area) */
 .info {
-  @apply absolute bottom-24 left-5 text-white drop-shadow-lg;
+  /* Moved lower for a better shorts feel */
+  @apply absolute bottom-5 left-4 text-white p-2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.8); /* Artistic text drop shadow for visibility */
+  max-width: 80%;
+  z-index: 10;
 }
 .info h2 {
-  @apply text-xl font-semibold;
+  @apply text-lg font-bold;
 }
 .info p {
   @apply text-sm opacity-90;
 }
 
-/* Actions Buttons */
+/* Actions Buttons (Vertical Bar on the Right) */
 .actions {
-  @apply absolute bottom-10 right-5 flex flex-col gap-4;
+  /* New position for the vertical TikTok/Shorts action bar */
+  @apply absolute bottom-16 right-4 flex flex-col items-center gap-5;
+  z-index: 10;
 }
+.actions button {
+  @apply bg-transparent border-none text-white text-3xl opacity-90 transition duration-200;
+}
+.actions button:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Individual Action Button Styles for icons */
 .like-btn {
-  @apply bg-white bg-opacity-80 rounded-full p-4 text-xl shadow-lg hover:bg-pink-500 hover:text-white transition duration-300;
+  /* Kept the heart for the like button */
+  color: white; /* Default white, will turn pink on click via JS */
 }
-.noAds-btn {
-  @apply bg-pink-300 text-white px-4 py-2 rounded-full font-semibold shadow-lg hover:bg-pink-500 transition duration-300;
+.user-btn {
+  /* New button for the user profile/follow */
+  @apply text-4xl;
+}
+.share-btn {
+  /* New button for a share action */
+}
+
+/* Floating No Ads Button - Relocated and restyled */
+#noAdsBtn {
+  @apply fixed top-4 right-4 z-50 bg-white bg-opacity-20 text-white px-3 py-1 text-xs rounded-full shadow-lg backdrop-blur-sm hover:bg-opacity-50 transition duration-300;
 }
 
 /* Ad Screen */
 .ad-screen {
-  @apply w-full h-full flex flex-col justify-center items-center text-pink-500 text-xl bg-white text-center;
+  @apply w-full h-full flex flex-col justify-center items-center text-white text-xl bg-black text-center;
 }
 
 /* Overlay Modal */
 #overlay {
-  @apply fixed inset-0 bg-pink-100 bg-opacity-90 flex justify-center items-center z-50 hidden transition duration-300;
+  @apply fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50;
 }
-.overlay-content {
-  @apply bg-white rounded-2xl p-8 w-4/5 max-w-xs text-center shadow-2xl;
+.modal-content {
+  @apply bg-white rounded-xl p-8 w-4/5 max-w-sm text-center shadow-2xl;
 }
-.overlay-content h2 {
-  @apply text-pink-500 text-lg font-bold mb-3;
-}
-.overlay-content p {
-  @apply text-gray-600 text-sm mb-5;
-}
-.overlay-content button {
-  @apply bg-pink-500 text-white rounded-full px-5 py-2 font-semibold mx-2 hover:bg-pink-600 transition duration-300;
+.close-btn {
+  @apply mt-6 bg-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-pink-600 transition duration-300;
 }
