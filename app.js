@@ -8,12 +8,17 @@ const adTag = document.getElementById("adTag");
 
 async function loadVideos() {
   try {
-    const res = await fetch("videos.json");
-    const data = await res.json();
-    videos = shuffleArray(data);
+    const res = await fetch("videos.txt");
+    const text = await res.text();
+    videos = shuffleArray(
+      text
+        .split("\n")
+        .map(v => v.trim())
+        .filter(v => v.length > 0 && v.startsWith("http"))
+    );
     playNext();
   } catch (e) {
-    console.error("Error loading videos:", e);
+    console.error("❌ Error loading videos:", e);
   }
 }
 
@@ -22,10 +27,10 @@ function playNext() {
 
   swipeCount++;
 
-  // Every 4 swipes, play ad
+  // Every 4 swipes, show ad
   if (swipeCount % 4 === 0) {
     adTag.classList.remove("hidden");
-    videoPlayer.src = "https://cdn.jsdelivr.net/gh/yourusername/repo/ad.mp4"; // replace with real ad video
+    videoPlayer.src = "https://cdn.jsdelivr.net/gh/yourusername/repo/ad.mp4"; // replace with ad URL
   } else {
     adTag.classList.add("hidden");
     currentIndex = (currentIndex + 1) % videos.length;
@@ -44,15 +49,14 @@ function shuffleArray(array) {
   return arr;
 }
 
-// Swipe support
+// Swipe detection
 let startY = 0;
 videoPlayer.addEventListener("touchstart", e => {
   startY = e.touches[0].clientY;
 });
-
 videoPlayer.addEventListener("touchend", e => {
   const endY = e.changedTouches[0].clientY;
-  if (startY - endY > 50) playNext(); // swipe up to next
+  if (startY - endY > 50) playNext(); // swipe up
 });
 
 nextBtn.addEventListener("click", playNext);
