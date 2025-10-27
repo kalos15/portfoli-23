@@ -2,6 +2,25 @@
 // app.js — TikTok-style Video Player
 // -------------------------------
 
+// Telegram WebApp integration (mock for browser)
+if (!window.Telegram) {
+  window.Telegram = {
+    WebApp: {
+      initData: "mock",
+      initDataUnsafe: {},
+      ready: () => console.log("Telegram WebApp ready (mock)"),
+      openLink: (url) => console.log("Open link:", url),
+      close: () => console.log("WebApp close called"),
+      MainButton: {
+        show: () => console.log("MainButton show"),
+        hide: () => console.log("MainButton hide"),
+        text: "",
+        onClick: (fn) => console.log("MainButton click (mock)")
+      }
+    }
+  };
+}
+
 let videos = [];
 let currentIndex = 0;
 let swipeCount = 0;
@@ -91,3 +110,6 @@ closeOverlay.onclick = () => overlay.classList.add("hidden");
 
 // Start app
 loadVideos();
+
+// Telegram WebApp ready
+window.Telegram.WebApp.ready();
