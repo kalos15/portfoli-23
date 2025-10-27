@@ -56,26 +56,34 @@ async function fetchRandomVideoLink() {
     const res = await fetch(API_ENDPOINT);
     
     if (!res.ok) {
+        // Log the response status for debugging server issues
+        console.error(`❌ HTTP Error: Server responded with status ${res.status}.`);
         throw new Error(`Server responded with status: ${res.status}. Check if ${API_ENDPOINT} is accessible.`);
     }
     
     const url = (await res.text()).trim(); 
+    
+    console.log("✅ Successfully received URL from PHP. Raw response:", url);
 
-    if (url && url.length > 0) {
+    // Basic validation that the link looks like a valid URL
+    if (url && url.length > 10 && url.startsWith("http")) {
       loadVideo(url);
     } else {
-      throw new Error("The server returned an empty or invalid video URL.");
+      console.error("❌ PHP returned empty or invalid URL. (Doesn't start with 'http').");
+      throw new Error(`Invalid URL returned by PHP script: ${url.substring(0, 50)}...`);
     }
 
   } catch (e) {
-    console.error("❌ Error fetching video link. Check PHP script and videos.txt:", e);
+    console.error("❌ Critical Fetch Error. Retrying in 5s.", e);
     // Show a user-friendly error screen instead of a broken video
     videoContainer.innerHTML = `
       <div class="ad-screen">
         <p class="mb-4">💔 Video Error 💔</p>
-        <p class="mt-4 text-sm opacity-70">Cannot load videos. Please ensure your <strong>videos.txt</strong> file and <strong>videos-random.php</strong> script are uploaded and accessible.</p>
+        <p class="mt-4 text-sm opacity-70">Cannot load videos. Check console for details. Retrying automatically in 5 seconds...</p>
       </div>
     `;
+    // Attempt to retry after a delay to recover from temporary server issues
+    setTimeout(fetchRandomVideoLink, 5000); 
   } finally {
     isFetching = false;
   }
@@ -130,7 +138,8 @@ function loadVideo(url) {
   // Add event listeners for the new elements
   videoContainer.querySelector(".like-btn").addEventListener("click", function() {
     this.style.color = '#ec4899'; // pink-500
-    alert("Liked! ❤️"); 
+    // Use a custom modal or message instead of alert()
+    // alert("Liked! ❤️"); 
   });
   
   // Handler for the inline "Hide Ads" button
