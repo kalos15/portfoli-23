@@ -70,15 +70,21 @@ function playNext() {
 // Load video at index
 function loadVideo(index) {
   const url = videos[index];
+  
+  // *** UPDATED: New artistic TikTok/Shorts design structure ***
   videoContainer.innerHTML = `
     <div class="video-slide">
-      <video src="${url}" autoplay muted playsinline></video>
+      <video src="${url}" autoplay muted playsinline loop></video>
+      
       <div class="info">
-        <h2>2 VIDEOS SHORTS</h2>
-        <p>xxx</p>
+        <h2>@ARTISTIC_SHORTS_BOT</h2>
+        <p>This is a description of the beautiful short video! It's an aesthetic template for a Telegram Mini App. #artistic #shorts #design</p>
       </div>
+
       <div class="actions">
+        <button class="user-btn">🧑‍💻</button>
         <button class="like-btn">❤️</button>
+        <button class="share-btn">🔗</button>
       </div>
     </div>
   `;
@@ -86,7 +92,12 @@ function loadVideo(index) {
   const video = videoContainer.querySelector("video");
   video.play().catch(err => console.log("Autoplay error:", err));
   video.addEventListener("ended", playNext);
-}
+
+  // Add event listener to the new like button
+  videoContainer.querySelector(".like-btn").addEventListener("click", function() {
+    this.style.color = 'pink'; // Turn the heart pink when liked
+    alert("Liked! ❤️"); 
+  }
 
 // Swipe detection
 document.addEventListener("touchstart", e => { startY = e.touches[0].clientY; });
