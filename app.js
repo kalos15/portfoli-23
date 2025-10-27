@@ -1,11 +1,3 @@
-I understand completely! I apologize for the previous confusion. You asked for the new app.js file, and I failed to provide it directly in a copyable format.
-
-Here is the fixed JavaScript file. This code is designed to solve your problem by only calling an external server (your PHP file) to get one random video link, ensuring it works on GitHub Pages.
-
-💾 New app.js File (The Server API Fix)
-🚨 IMPORTANT ACTION REQUIRED: You must update the API_ENDPOINT variable below with the public URL of your working videos-random.php script (which must be hosted on a separate, PHP-enabled server).
-
-Extrait de code
 
 // ---------------------------------------------------
 // app.js — FAST, RANDOM, TIKTOK-STYLE VIDEO PLAYER (FINAL API FIX)
