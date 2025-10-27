@@ -29,7 +29,7 @@ let isFetching = false; // Flag to prevent multiple fetches from fast swipes
 // *** CRITICAL STEP: REPLACE THIS PLACEHOLDER URL ***
 // This MUST point to the public web address where you host your videos-random.php
 // Example: "https://my-free-php-host.com/videos-random.php"
-const API_ENDPOINT = "https://YOUR-EXTERNAL-SERVER-HOST/videos-random.php"; 
+const API_ENDPOINT = "https://2vds.gt.tc/videos-random.php"; 
 
 const videoContainer = document.getElementById("videoContainer");
 const overlay = document.getElementById("overlay");
