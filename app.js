@@ -1,6 +1,5 @@
-
 // ---------------------------------------------------
-// app.js — FAST, RANDOM, TIKTOK-STYLE VIDEO PLAYER (FINAL API FIX)
+// app.js — FAST, RANDOM, TIKTOK-STYLE VIDEO PLAYER (FINAL FIX)
 // ---------------------------------------------------
 
 // Telegram WebApp integration (mock for browser)
@@ -26,10 +25,8 @@ let swipeCount = 0;
 let startY = 0;
 let isFetching = false; // Flag to prevent multiple fetches from fast swipes
 
-// *** CRITICAL STEP: REPLACE THIS PLACEHOLDER URL ***
-// This MUST point to the public web address where you host your videos-random.php
-// Example: "https://my-free-php-host.com/videos-random.php"
-const API_ENDPOINT = "https://2vds.gt.tc/videos-random.php"; 
+// *** CRITICAL STEP: HARDCODED YOUR WORKING ENDPOINT ***
+const API_ENDPOINT = "https://2vds.gt.tc/videos-random.php";
 
 const videoContainer = document.getElementById("videoContainer");
 const overlay = document.getElementById("overlay");
@@ -48,12 +45,12 @@ function showLoadingScreen(message = "Fetching random link from server...") {
 
 // --- CORE FUNCTION: Fetch one random link from the server ---
 async function fetchRandomVideoLink() {
-  if (isFetching) return; // Ignore if a fetch is already in progress
+  if (isFetching) return;
   isFetching = true;
-  
-  // Stop the currently playing video before fetching the next one
+
+  // Stop and clear the currently playing video
   const currentVideo = videoContainer.querySelector("video");
-  if (currentVideo) currentVideo.pause(); 
+  if (currentVideo) currentVideo.pause();
   
   // Display the loading screen immediately
   showLoadingScreen();
@@ -62,38 +59,36 @@ async function fetchRandomVideoLink() {
     const res = await fetch(API_ENDPOINT);
 
     if (!res.ok) {
-        // This means the API endpoint is down or returning an error status (404, 500, etc.)
-        throw new Error(`Server API Error: Status ${res.status}. Check if your PHP file is hosted and working.`);
+        throw new Error(`Server API Error: Status ${res.status}.`);
     }
 
     const url = await res.text();
     const videoUrl = url.trim();
 
     if (!videoUrl || !videoUrl.startsWith("http")) {
-        // This means the PHP script executed but returned junk or a blank line
         throw new Error(`Invalid URL returned from API: "${videoUrl.substring(0, 50)}..."`);
     }
 
     console.log("✅ Successfully received URL from API:", videoUrl);
+    
+    // Pass the valid URL to the rendering function
     loadVideo(videoUrl);
 
   } catch (e) {
     console.error("❌ Critical Fetch Error:", e);
-    
-    // Show a user-friendly error screen instead of a broken video
+
+    // Show a user-friendly error screen
     videoContainer.innerHTML = `
       <div class="ad-screen p-6">
-        <p class="mb-4 text-xl font-bold text-red-500">💔 Connection Error 💔</p>
+        <p class="mb-4 text-xl font-bold text-red-500">💔 Video Load Error 💔</p>
         <p class="mt-4 text-sm text-gray-400 opacity-90">
-            Cannot connect to the video server (PHP file). Please ensure you have 
-            replaced the placeholder <strong>API_ENDPOINT</strong> in app.js with the 
-            correct, working URL of your hosted <strong>videos-random.php</strong>.
+            Could not fetch a valid video link. Please check your hosting provider for errors.
         </p>
         <p class="mt-4 text-xs text-gray-500 opacity-50">Retrying fetch in 5 seconds...</p>
       </div>
     `;
     // Attempt to retry after a delay
-    setTimeout(fetchRandomVideoLink, 5000); 
+    setTimeout(fetchRandomVideoLink, 5000);
 
   } finally {
     isFetching = false;
@@ -112,13 +107,17 @@ function playNext() {
   }
 }
 
-// Load video takes a single URL (string)
+// --- FIX: Load video with robust autoplay/error handling ---
 function loadVideo(url) {
+  // Use a temporary container for the new content
+  const newContent = document.createElement('div');
+  newContent.className = 'video-slide';
+  
   // IMPORTANT: Added muted, playsinline, and loop for guaranteed mobile autoplay
-  videoContainer.innerHTML = `
-    <div class="video-slide">
+  newContent.innerHTML = `
       <video src="${url}" autoplay muted playsinline loop></video>
       
+      <!-- The info container for the black bar effect -->
       <div class="info">
         <h2>@ARTISTIC_SHORTS_BOT</h2>
         <p>This beautiful short video was picked very randomly! #artistic #professional</p>
@@ -127,19 +126,35 @@ function loadVideo(url) {
       <div class="actions">
         <button class="like-btn">❤️</button>
       </div>
-    </div>
   `;
 
-  const video = videoContainer.querySelector("video");
+  // Clear the container (removes the loading screen) and append the new content
+  videoContainer.innerHTML = '';
+  videoContainer.appendChild(newContent);
   
-  // Attempt to play. Since muted is set, this usually works.
-  video.play().catch(error => {
-    console.log("Autoplay blocked, waiting for user interaction.", error);
+  const video = videoContainer.querySelector("video");
+
+  // 1. Listen for when the video metadata is loaded
+  video.addEventListener('loadeddata', () => {
+      // 2. Attempt to play the video (it must be muted for browsers to allow it)
+      video.play().catch(error => {
+          console.log("Autoplay blocked, user interaction required:", error.message);
+          // Show a play button overlay if autoplay fails
+          // For simplicity, we just log and rely on the user tapping the screen
+      });
   });
   
+  // 3. Handle video playback error (e.g., link is broken or video file is corrupt)
+  video.addEventListener('error', (e) => {
+      console.error("Video element playback error:", e.target.error);
+      showLoadingScreen(`💔 Error playing video from URL. Skipping in 3s...`);
+      setTimeout(playNext, 3000);
+  });
+  
+  // 4. Set up the loop/next video logic
   video.addEventListener("ended", playNext);
 
-  // Add event listeners for the new elements
+  // 5. Add event listener for the like button
   videoContainer.querySelector(".like-btn").addEventListener("click", function() {
     this.style.color = '#ec4899'; // pink-500
   });
@@ -169,10 +184,12 @@ document.addEventListener("touchstart", e => {
 document.addEventListener("touchend", e => {
   if (videoContainer.querySelector("video")) {
     const endY = e.changedTouches[0].clientY;
-    if (startY - endY > 50) playNext(); // swipe up
+    // Swipe up: difference is positive (startY > endY)
+    if (startY - endY > 50) playNext(); 
   }
 });
 document.addEventListener("wheel", e => { 
+    // Scroll down: deltaY is positive
     if (videoContainer.querySelector("video") && e.deltaY > 0) {
         playNext(); 
     }
