@@ -24,7 +24,7 @@ if (!window.Telegram) {
 let swipeCount = 0;
 let startY = 0;
 let isFetching = false; 
-const API_ENDPOINT = "videos-random.php"; // <--- Only reliance on the server file
+const API_ENDPOINT = "https://2vds.gt.tc/videos-random.php"; // <--- Only reliance on the server file
 
 const videoContainer = document.getElementById("videoContainer");
 const overlay = document.getElementById("overlay");
